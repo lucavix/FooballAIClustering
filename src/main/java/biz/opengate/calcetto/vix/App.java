@@ -1,6 +1,7 @@
 package biz.opengate.calcetto.vix;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -109,8 +110,42 @@ public class App {
 			descend(newSol);
 		}
 	}
+	
+	// Il più forte con il più devole
+	// il secondo più forte con il secondo più debole
+	// e via dicendo...
+	private static void findAGoodSolution() {
+		Integer[] goodSolution = ArrayUtils.toObject(INDEXES);
+		Arrays.sort(goodSolution, new Comparator<Integer>() {
+			@Override
+			public int compare(Integer arg0, Integer arg1) {
+				Player a = PLAYERS[arg0];
+				Player b = PLAYERS[arg1];
+				return a.score.compareTo(b.score);
+			}
+		});
+		for (int i = 0; i < INDEXES.length / 2; i+=2) {
+			int tmp = goodSolution[i];
+			goodSolution[i] = goodSolution[INDEXES.length - i - 1];
+			goodSolution[INDEXES.length - i -1] = tmp;
+		}
+		best = ArrayUtils.toPrimitive(goodSolution);
+		bestScore = score(best);
+		
+		System.out.println("Initial score: " + bestScore);
+		System.out.println(Arrays.toString(best));
+		prettyPrint(best);
+	}
+	
+	
 	// https://en.wikipedia.org/wiki/Branch_and_bound
 	public static void main(String[] args) {
+		
+		
+		//Iniziare da una soluzione buona, anche se ottima toglie un 
+		//po di calcoli
+		
+		findAGoodSolution();
 		int n = PLAYERS.length;
 		int k = 4;
 		Iterator<int[]> it = CombinatoricsUtils.combinationsIterator(n, k);
